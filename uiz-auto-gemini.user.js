@@ -10,7 +10,7 @@
 
 (function () {
   /* ===== Consts & Storage ===== */
-  const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent";
   const LS_KEYS  = "quiz_gemini_keys";
   const LS_IDX   = "quiz_gemini_key_idx";
   const LS_NQ    = "quiz_auto_num_questions";
@@ -261,7 +261,14 @@
         throw new Error("Gemini không trả về kết quả (no candidates).");
       }
       const text = cands[0]?.content?.parts?.map(p=>p.text).join("") || "{}";
-      let obj={}; try{ obj=JSON.parse(text.match(/\{[\s\S]*\}$/)?.[0] || text); }catch{}
+      function extractJSON(text){
+          const match = text.match(/\{[\s\S]*?\}/);
+          if(!match) return null;
+          try{ return JSON.parse(match[0]); }catch{ return null; }
+      }
+
+        const obj = extractJSON(text) || {};
+
       return obj;
     }
 
